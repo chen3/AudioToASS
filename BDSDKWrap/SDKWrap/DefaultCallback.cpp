@@ -5,17 +5,16 @@
 
 #include <iostream>
 
-#include "../SDKWrapper/Message/CancelMessage.hpp"
-#include "../SDKWrapper/Message/ErrorMessage.h"
-#include "../SDKWrapper/Message/ReceiveMessage.hpp"
-#include "../SDKWrapper/Message/RecognitionEndMessage.hpp"
-#include "../SDKWrapper/Message/RecognitionStartMessage.hpp"
-#include "../SDKWrapper/Message/SentenceEndMessage.hpp"
-#include "../SDKWrapper/Message/SentenceFinishData.h"
-#include "../SDKWrapper/Message/SentenceFlushData.h"
-#include "../SDKWrapper/Message/SentenceStartMessage.hpp"
-#include "../SDKWrapper/Message/UnknowMessage.h"
-
+#include "./Message/CancelMessage.hpp"
+#include "./Message/ErrorMessage.h"
+#include "./Message/ReceiveMessage.hpp"
+#include "./Message/RecognitionEndMessage.hpp"
+#include "./Message/RecognitionStartMessage.hpp"
+#include "./Message/SentenceEndMessage.hpp"
+#include "./Message/SentenceFinishData.h"
+#include "./Message/SentenceFlushData.h"
+#include "./Message/SentenceStartMessage.hpp"
+#include "./Message/UnknowMessage.h"
 
 using mx404::BDSpeedSDKWrapper::DefaultCallback;
 using mx404::BDSpeedSDKWrapper::SDKMessage::CancelMessage;

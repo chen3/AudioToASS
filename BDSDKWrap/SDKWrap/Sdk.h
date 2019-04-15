@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <string>
-#include "../SDKWrapper/Message/ErrorMessage.h"
+#include "./Message/ErrorMessage.h"
 
 namespace bds {
     class BDSpeechSDK;
