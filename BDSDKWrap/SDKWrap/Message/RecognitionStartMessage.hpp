@@ -3,14 +3,15 @@
 //
 #pragma once
 
+#include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class RecognitionStartMessage : public ReceiveMessage {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic RecognitionStartMessage : public ReceiveMessage {
     private:
         RecognitionStartMessage() = default;
         friend class mx404::BDSpeedSDKWrapper::SDK;

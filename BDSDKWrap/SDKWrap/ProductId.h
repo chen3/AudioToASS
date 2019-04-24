@@ -3,11 +3,13 @@
 //
 #pragma once
 
-namespace mx404::BDSpeedSDKWrapper {
-    class ProductID {
+#include "./DLLPublic.h"
+
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic ProductID {
     public:
-        explicit ProductID(int id);
-        int getID() const;
+        DLLPublic explicit ProductID(int id);
+        DLLPublic int getID() const;
     private:
         int id;
     };

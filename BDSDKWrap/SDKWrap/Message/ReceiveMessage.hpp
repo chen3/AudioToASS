@@ -3,11 +3,13 @@
 //
 #pragma once
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class ReceiveMessage {
+#include "../DLLPublic.h"
+
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic ReceiveMessage {
     public:
-        virtual ~ReceiveMessage() = default;
+        DLLPublic virtual ~ReceiveMessage() = default;
     protected:
-        ReceiveMessage() = default;
+        DLLPublic ReceiveMessage() = default;
     };
 }

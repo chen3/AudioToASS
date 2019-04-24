@@ -5,16 +5,17 @@
 
 #include <string>
 
+#include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class SentenceFlushData : public ReceiveMessage {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic SentenceFlushData : public ReceiveMessage {
     public:
-        std::string getJsonString() const;
+        DLLPublic std::string getJsonString() const;
     private:
         explicit SentenceFlushData(std::string  jsonString);
         friend class mx404::BDSpeedSDKWrapper::SDK;

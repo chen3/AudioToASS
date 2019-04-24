@@ -5,18 +5,19 @@
 
 #include <vector>
 
+#include "../DLLPublic.h"
 #include "Message.h"
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class PushMessage {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic PushMessage {
     public:
-        PushMessage();
+        DLLPublic PushMessage();
 
-        void setData(const std::vector<char>& value);
+        DLLPublic void setData(const std::vector<char>& value);
 
     private:
         Message message;

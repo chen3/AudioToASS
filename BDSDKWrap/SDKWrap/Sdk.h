@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include "./DLLPublic.h"
 #include "./Message/ErrorMessage.h"
 
 namespace bds {
@@ -12,40 +13,40 @@ namespace bds {
     class BDSSDKMessage;
 }
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDKConfig;
-    class Callback;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDKConfig;
+    class DLLPublic Callback;
     class InternalCaller;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class Message;
-    class PushMessage;
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic Message;
+    class DLLPublic PushMessage;
 }
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK {
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK {
     public:
         ~SDK();
-        static std::shared_ptr<SDK> getInstance(
+        DLLPublic static std::shared_ptr<SDK> getInstance(
                 const std::shared_ptr<mx404::BDSpeedSDKWrapper::SDKConfig>& sdkConfig, std::string& errorDescription);
 
-        bool post(const std::shared_ptr<mx404::BDSpeedSDKWrapper::SDKMessage::PushMessage>& message,
+        DLLPublic bool post(const std::shared_ptr<mx404::BDSpeedSDKWrapper::SDKMessage::PushMessage>& message,
                 std::string& errorDescription);
 
-        bool post(const std::shared_ptr <SDKMessage::Message> &message, std::string &errorDescription);
+        DLLPublic bool post(const std::shared_ptr <SDKMessage::Message> &message, std::string &errorDescription);
 
-        static void cleanUp();
+        DLLPublic static void cleanUp();
 
-        static std::string getSDKVersion();
+        DLLPublic static std::string getSDKVersion();
 
-        void setCallback(std::shared_ptr<mx404::BDSpeedSDKWrapper::Callback> callback);
+        DLLPublic void setCallback(std::shared_ptr<mx404::BDSpeedSDKWrapper::Callback> callback);
 
-        bool init(std::string& errorDescription);
+        DLLPublic bool init(std::string& errorDescription);
 
-        bool start(std::string& errorDescription);
+        DLLPublic bool start(std::string& errorDescription);
 
-        bool stop(std::string& errorDescription);
+        DLLPublic bool stop(std::string& errorDescription);
 
     private:
         bds::BDSpeechSDK* sdk;

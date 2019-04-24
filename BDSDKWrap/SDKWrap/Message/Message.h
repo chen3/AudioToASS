@@ -8,34 +8,36 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../DLLPublic.h"
+
 namespace bds {
     class BDSSDKMessage;
 }
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class Message {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic Message {
     public:
-        explicit Message(const std::string &name);
+        DLLPublic explicit Message(const std::string &name);
 
-        virtual ~Message() = default;
+        DLLPublic virtual ~Message() = default;
 
-        std::string getName() const;
+        DLLPublic std::string getName() const;
 
-        void set(const std::string &key, int value);
-        void set(const std::string &key, float value);
-        void set(const std::string &key, const std::string &value);
-        void set(const std::string &key, const std::vector<char> &value);
-        void set(const std::string &key, const std::vector <std::string> &value);
+        DLLPublic void set(const std::string &key, int value);
+        DLLPublic void set(const std::string &key, float value);
+        DLLPublic void set(const std::string &key, const std::string &value);
+        DLLPublic void set(const std::string &key, const std::vector<char> &value);
+        DLLPublic void set(const std::string &key, const std::vector <std::string> &value);
 
-        bool get(const std::string &key, int &value);
-        bool get(const std::string &key, float &value);
-        bool get(const std::string &key, std::string &value);
-        bool get(const std::string &key, std::vector<char> &value);
-        bool get(const std::string &key, std::vector <std::string> &value) ;
+        DLLPublic bool get(const std::string &key, int &value);
+        DLLPublic bool get(const std::string &key, float &value);
+        DLLPublic bool get(const std::string &key, std::string &value);
+        DLLPublic bool get(const std::string &key, std::vector<char> &value);
+        DLLPublic bool get(const std::string &key, std::vector <std::string> &value) ;
 
     protected:
         std::shared_ptr <bds::BDSSDKMessage> message;

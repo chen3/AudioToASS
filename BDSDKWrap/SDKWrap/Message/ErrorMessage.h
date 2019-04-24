@@ -5,19 +5,20 @@
 
 #include <string>
 
+#include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
-    class ErrorMessage : public ReceiveMessage {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+    class DLLPublic ErrorMessage : public ReceiveMessage {
     public:
-        int getErrorCode() const;
-        int getErrorDomain() const;
-        std::string getErrorDescription() const;
-        std::string getSerialNumber() const;
+        DLLPublic int getErrorCode() const;
+        DLLPublic int getErrorDomain() const;
+        DLLPublic std::string getErrorDescription() const;
+        DLLPublic std::string getSerialNumber() const;
     private:
         explicit ErrorMessage(int errorCode, int errorDomain,
                 const std::string& errorDescription, const std::string& serialNumber);

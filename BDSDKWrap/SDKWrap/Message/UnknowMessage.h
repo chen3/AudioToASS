@@ -5,20 +5,21 @@
 
 #include <memory>
 
+#include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace mx404::BDSpeedSDKWrapper {
-    class SDK;
+namespace DLLPublic mx404::BDSpeedSDKWrapper {
+    class DLLPublic SDK;
 }
 
-namespace mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
 
-    class Message;
+    class DLLPublic Message;
 
-    class UnknowMessage : public ReceiveMessage {
+    class DLLPublic UnknowMessage : public ReceiveMessage {
     public:
-        int getStatusCode() const;
-        std::shared_ptr<mx404::BDSpeedSDKWrapper::SDKMessage::Message> getMessage() const;
+        DLLPublic int getStatusCode() const;
+        DLLPublic std::shared_ptr<mx404::BDSpeedSDKWrapper::SDKMessage::Message> getMessage() const;
     private:
         explicit UnknowMessage(std::shared_ptr<Message>  message, int statusCode);
         friend class mx404::BDSpeedSDKWrapper::SDK;
