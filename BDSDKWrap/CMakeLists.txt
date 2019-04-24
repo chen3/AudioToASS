@@ -11,6 +11,7 @@ set(SDKWrapFiles SDKWrap/Callback.hpp SDKWrap/DefaultCallback.cpp SDKWrap/Produc
         SDKWrap/Message/SentenceStartMessage.hpp  SDKWrap/Message/UnknowMessage.cpp)
 
 add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
+add_compile_options(-Wl,--exclude-libs,ALL)
 
 add_library(BDSpeedSDKWrap SHARED EXCLUDE_FROM_ALL ${SDKWrapFiles})
 
