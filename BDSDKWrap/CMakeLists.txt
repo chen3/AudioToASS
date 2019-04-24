@@ -14,6 +14,9 @@ add_compile_options(-D_GLIBCXX_USE_CXX11_ABI=0)
 
 add_library(BDSpeedSDKWrap SHARED EXCLUDE_FROM_ALL ${SDKWrapFiles})
 
+set_target_properties(BDSpeedSDKWrap PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN true)
 target_include_directories(BDSpeedSDKWrap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/include)
 target_link_directories(BDSpeedSDKWrap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/lib
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib)
