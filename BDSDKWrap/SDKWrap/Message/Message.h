@@ -14,11 +14,11 @@ namespace bds {
     class BDSSDKMessage;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
-    class DLLPublic SDK;
+namespace mx404::BDSpeedSDKWrapper {
+    class SDK;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic Message {
     public:
         DLLPublic explicit Message(const std::string &name);

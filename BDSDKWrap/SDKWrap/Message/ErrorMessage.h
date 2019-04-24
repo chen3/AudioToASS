@@ -8,11 +8,11 @@
 #include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
     class DLLPublic SDK;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic ErrorMessage : public ReceiveMessage {
     public:
         DLLPublic int getErrorCode() const;

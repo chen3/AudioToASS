@@ -8,9 +8,9 @@
 
 #include "./DLLPublic.h"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
 
-    class DLLPublic ProductID;
+    class ProductID;
 
     class DLLPublic SDKConfig {
     public:

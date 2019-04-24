@@ -13,18 +13,18 @@ namespace bds {
     class BDSSDKMessage;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
     class DLLPublic SDKConfig;
     class DLLPublic Callback;
     class InternalCaller;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic Message;
     class DLLPublic PushMessage;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
     class DLLPublic SDK {
     public:
         ~SDK();

@@ -8,11 +8,11 @@
 #include "../DLLPublic.h"
 #include "ReceiveMessage.hpp"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
-    class DLLPublic SDK;
+namespace mx404::BDSpeedSDKWrapper {
+    class SDK;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic SentenceFlushData : public ReceiveMessage {
     public:
         DLLPublic std::string getJsonString() const;

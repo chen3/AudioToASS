@@ -8,11 +8,11 @@
 #include "../DLLPublic.h"
 #include "Message.h"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
-    class DLLPublic SDK;
+namespace mx404::BDSpeedSDKWrapper {
+    class SDK;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic PushMessage {
     public:
         DLLPublic PushMessage();

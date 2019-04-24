@@ -5,11 +5,13 @@
 
 #include "./DLLPublic.h"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
     class DLLPublic ProductID {
     public:
         DLLPublic explicit ProductID(int id);
+
         DLLPublic int getID() const;
+
     private:
         int id;
     };

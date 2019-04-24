@@ -7,11 +7,11 @@
 
 #include "./DLLPublic.h"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
-    class DLLPublic ReceiveMessage;
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
+    class ReceiveMessage;
 }
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper {
+namespace mx404::BDSpeedSDKWrapper {
     class DLLPublic Callback {
     public:
         DLLPublic virtual ~Callback() = default;

@@ -5,7 +5,7 @@
 
 #include "../DLLPublic.h"
 
-namespace DLLPublic mx404::BDSpeedSDKWrapper::SDKMessage {
+namespace mx404::BDSpeedSDKWrapper::SDKMessage {
     class DLLPublic ReceiveMessage {
     public:
         DLLPublic virtual ~ReceiveMessage() = default;
