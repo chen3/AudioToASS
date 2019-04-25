@@ -3,6 +3,13 @@ project(BDSpeedSDKWrap)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(FATAL_ERROR "Only Support gcc")
+endif()
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4")
+    message(FATAL_ERROR "Gcc version must be greater than or equal to 4")
+endif()
+
 set(SDKWrapFiles SDKWrap/Callback.hpp SDKWrap/DefaultCallback.cpp SDKWrap/ProductId.cpp
         SDKWrap/Sdk.cpp SDKWrap/SdkConfig.cpp SDKWrap/Message/CancelMessage.hpp SDKWrap/Message/ErrorMessage.cpp
         SDKWrap/Message/Message.cpp  SDKWrap/Message/PushMessage.cpp  SDKWrap/Message/ReceiveMessage.hpp
