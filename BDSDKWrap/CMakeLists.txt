@@ -30,31 +30,36 @@ target_link_directories(BDSpeedSDKWrap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Libra
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib)
 target_link_libraries(BDSpeedSDKWrap BDSpeechSDK curl ssl pthread dl crypto uuid z iconv)
 
+
+add_subdirectory(Library/gRPC ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
+message(STATUS "Using gRPC via add_subdirectory.")
+set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
+set(_GRPC_GRPCPP_UNSECURE grpc++_unsecure)
+set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc_cpp_plugin>)
+
 # Proto file
-#get_filename_component(ProjectProto "../Protos/Project.proto" ABSOLUTE)
-#get_filename_component(ProjectProtoPath "${ProjectProto}" PATH)
+get_filename_component(ProjectProto "../Protos/Project.proto" ABSOLUTE)
+get_filename_component(ProjectProtoPath "${ProjectProto}" PATH)
 
 # Generated sources
-#set(ProjectProtoSrcs "${CMAKE_CURRENT_BINARY_DIR}/project.pb.cc")
-#set(ProjectProtoHdrs "${CMAKE_CURRENT_BINARY_DIR}/project.pb.h")
-#set(ProjectGrpcSrcs "${CMAKE_CURRENT_BINARY_DIR}/project.grpc.pb.cc")
-#set(ProjectGrpcHdrs "${CMAKE_CURRENT_BINARY_DIR}/project.grpc.pb.h")
-#add_custom_command(
-#        OUTPUT "${ProjectProtoSrcs}" "${ProjectProtoHdrs}" "${ProjectGrpcSrcs}" "${ProjectGrpcHdrs}"
-#        COMMAND ${_PROTOBUF_PROTOC}
-#        ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-#        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-#        -I "${ProjectProtoPath}"
-#        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-#        "${ProjectProto}"
-#        DEPENDS "${ProjectProto}")
+set(ProjectProtoSrcs "${CMAKE_CURRENT_BINARY_DIR}/Project.pb.cc")
+set(ProjectProtoHdrs "${CMAKE_CURRENT_BINARY_DIR}/Project.pb.h")
+set(ProjectGrpcSrcs "${CMAKE_CURRENT_BINARY_DIR}/Project.grpc.pb.cc")
+set(ProjectGrpcHdrs "${CMAKE_CURRENT_BINARY_DIR}/Project.grpc.pb.h")
+add_custom_command(
+        OUTPUT "${ProjectProtoSrcs}" "${ProjectProtoHdrs}" "${ProjectGrpcSrcs}" "${ProjectGrpcHdrs}"
+        COMMAND ${_PROTOBUF_PROTOC}
+        ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${ProjectProtoPath}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${ProjectProto}"
+        DEPENDS "${ProjectProto}")
 
 # Include generated *.pb.h files
-#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-#库链接顺序需要注意
-#set(ProjectLinkLibrarys BDSpeechSDK curl ssl pthread dl crypto uuid z iconv gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc_cronet)
-
-#add_executable(BDSpeedSDKWrapper ${WrapFiles} ${ProjectProtoSrcs} ${ProjectGrpcSrcs})
-#target_link_libraries(BDSpeedSDKWraper ${ProjectLinkLibrarys})
-
+add_executable(gRPCClient main.cpp ${ProjectProtoSrcs} ${ProjectGrpcSrcs})
+target_link_libraries(gRPCClient ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+add_dependencies(gRPCClient BDSpeedSDKWrap)
