@@ -1,5 +1,46 @@
 syntax = "proto3";
 
+package cn.mx404.audiotoass;
+
+service AudioStream {
+    rpc GetConfig(Empty) returns (Config) {}
+
+    rpc GetStream(Empty) returns (stream Frame) {}
+
+    rpc RecognitionStart(Empty) returns(Empty) {}
+    rpc RecognitionEnd(Empty) returns(Empty) {}
+    rpc SentenceEnd(Empty) returns(Empty) {}
+    rpc SentenceStart(Empty) returns(Empty) {}
+
+    rpc SentenceFinishData(JsonString) returns(Empty) {}
+    rpc SentenceFlushData(JsonString) returns(Empty) {}
+
+    rpc UnknowError(ErrorContent) returns(Empty) {}
+}
+
 message Empty {
 }
 
+message Frame {
+    bytes data = 1;
+    bool cancel = 2;
+}
+
+message ErrorMessage {
+    int32 code = 1;
+    int32 domain = 2;
+    string description = 3;
+    string serialNumber = 4;
+}
+
+message JsonString {
+    string data = 1;
+}
+
+message Config {
+    repeated string unknowErrorKeys = 1;
+}
+
+message ErrorContent {
+    map<string, string> data = 1;
+}
