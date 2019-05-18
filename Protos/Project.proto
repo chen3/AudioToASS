@@ -16,6 +16,7 @@ service AudioStream {
     rpc SentenceFlushData(JsonString) returns(Empty) {}
 
     rpc UnknowError(ErrorContent) returns(Empty) {}
+    rpc BDSDKStartFail(ErrorString) returns(Empty) {}
 }
 
 message Empty {
@@ -43,4 +44,8 @@ message Config {
 
 message ErrorContent {
     map<string, string> data = 1;
+}
+
+message ErrorString {
+    string errorString = 1;
 }

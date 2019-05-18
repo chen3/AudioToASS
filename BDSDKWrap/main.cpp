@@ -17,6 +17,7 @@
 using cn::mx404::audiotoass::AudioStream;
 using cn::mx404::audiotoass::Empty;
 using cn::mx404::audiotoass::ErrorContent;
+using cn::mx404::audiotoass::ErrorString;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
 using cn::mx404::audiotoass::Config;
@@ -206,7 +207,20 @@ namespace {
                 }
             }
             ClientContext context;
-            stub->UnknowError(&context, errorContent, nullptr);
+            Status status = stub->UnknowError(&context, errorContent, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentBDSDKStartFail(const string& errorString) {
+            int size = config.unknowerrorkeys_size();
+            ClientContext context;
+            ErrorString str;
+            str.set_errorstring(errorString);
+            Status status = stub->BDSDKStartFail(&context, str, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
         }
     private:
         int m_port;
@@ -232,7 +246,7 @@ int main(int argc, char* argv[]) {
     } catch (ArgumentException& ex) {
         cerr << ex.what() << endl;
         return ex.exitCode();
-    } catch(exception& ex) {
+    } catch (exception& ex) {
         cerr << ex.what() << endl;
         return -1;
     }
