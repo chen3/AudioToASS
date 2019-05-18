@@ -8,7 +8,9 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include "SDKWrap/ProductId.h"
 #include "SDKWrap/Sdk.h"
+#include "SDKWrap/SdkConfig.h"
 #include "SDKWrap/Message/Message.h"
 #include "Project.grpc.pb.h"
 
@@ -18,7 +20,9 @@ using cn::mx404::audiotoass::ErrorContent;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
 using cn::mx404::audiotoass::Config;
+using mx404::BDSpeedSDKWrapper::ProductID;
 using mx404::BDSpeedSDKWrapper::SDK;
+using mx404::BDSpeedSDKWrapper::SDKConfig;
 using mx404::BDSpeedSDKWrapper::SDKMessage::Message;
 using grpc::Channel;
 using grpc::ClientContext;
@@ -29,7 +33,9 @@ using std::cerr;
 using std::endl;
 using std::exception;
 using std::invalid_argument;
+using std::make_shared;
 using std::runtime_error;
+using std::shared_ptr;
 using std::string;
 
 namespace {
@@ -128,16 +134,12 @@ namespace {
             return m_port;
         }
 
-        void receiveFrameLoop(std::function<void(const std::string&)> callback) {
+        void receiveFrameLoop(std::function<void(const Frame&)> callback) {
             ClientContext context;
             std::unique_ptr<ClientReader<Frame>> reader(stub->GetStream(&context, empty));
             Frame frame;
             while (reader->Read(&frame)) {
-                if (frame.cancel()) {
-                    reader->Finish();
-                    return;
-                }
-                callback(frame.data());
+                callback(frame);
             }
             Status status = reader->Finish();
             if (status.ok()) {
@@ -215,10 +217,18 @@ namespace {
 
 int main(int argc, char* argv[]) {
     try {
-        int port = parseArguments(argc, argv);
-        LocalServer local(port);
+        LocalServer local(parseArguments(argc, argv));
         local.initConfig();
 
+        // test config
+        shared_ptr<SDKConfig> sdkConfig = make_shared<SDKConfig>("10555002", "YourOwnName",
+                                        "jhRA15uv8Lvd4r9qbtmOODMv", make_shared<ProductID>(15362));
+        string errorString;
+        shared_ptr<SDK> sdk = SDK::getInstance(sdkConfig, errorString);
+
+        local.receiveFrameLoop([](Frame frame) {
+
+        });
     } catch (ArgumentException& ex) {
         cerr << ex.what() << endl;
         return ex.exitCode();
