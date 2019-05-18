@@ -105,7 +105,7 @@ namespace {
     {
     public:
         LocalServer(int port)
-            : port(port)
+            : m_port(port)
         {
             assert(port > 0);
             std::shared_ptr<Channel> channel = grpc::CreateChannel("localhost:" + std::to_string(port), grpc::InsecureChannelCredentials());
@@ -120,11 +120,11 @@ namespace {
             }
             throw GRpcStatusException(status);
         }
-        int getPort() const {
-            return port;
+        inline int port() const {
+            return m_port;
         }
     private:
-        int port;
+        int m_port;
         std::shared_ptr<AudioStream::Stub> stub;
         Config config;
     };
