@@ -9,14 +9,17 @@
 #include <grpcpp/grpcpp.h>
 
 #include "SDKWrap/Sdk.h"
+#include "SDKWrap/Message/Message.h"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
 using cn::mx404::audiotoass::Empty;
+using cn::mx404::audiotoass::ErrorContent;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
 using cn::mx404::audiotoass::Config;
 using mx404::BDSpeedSDKWrapper::SDK;
+using mx404::BDSpeedSDKWrapper::SDKMessage::Message;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
@@ -27,6 +30,7 @@ using std::endl;
 using std::exception;
 using std::invalid_argument;
 using std::runtime_error;
+using std::string;
 
 namespace {
 
@@ -123,13 +127,91 @@ namespace {
         inline int port() const {
             return m_port;
         }
+
+        void receiveFrameLoop(std::function<void(const std::string&)> callback) {
+            ClientContext context;
+            std::unique_ptr<ClientReader<Frame>> reader(stub->GetStream(&context, empty));
+            Frame frame;
+            while (reader->Read(&frame)) {
+                if (frame.cancel()) {
+                    reader->Finish();
+                    return;
+                }
+                callback(frame.data());
+            }
+            Status status = reader->Finish();
+            if (status.ok()) {
+                return;
+            }
+            throw GRpcStatusException(status);
+        }
+
+        void sentRecognitionStartMessage() {
+            ClientContext context;
+            Status status = stub->RecognitionStart(&context, empty, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentRecognitionEndMessage() {
+            ClientContext context;
+            Status status = stub->RecognitionEnd(&context, empty, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentSentenceStartMessage() {
+            ClientContext context;
+            Status status = stub->SentenceStart(&context, empty, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentSentenceEndMessage() {
+            ClientContext context;
+            Status status = stub->SentenceEnd(&context, empty, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentSentenceFinishData(const std::string& jsonString) {
+            ClientContext context;
+            JsonString json;
+            json.set_data(jsonString);
+            Status status = stub->SentenceFinishData(&context, json, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentSentenceFlushData(const std::string& jsonString) {
+            ClientContext context;
+            JsonString json;
+            json.set_data(jsonString);
+            Status status = stub->SentenceFlushData(&context, json, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sentUnknowError(Message& message) {
+            int size = config.unknowerrorkeys_size();
+            ErrorContent errorContent;
+            ::google::protobuf::Map<string, string> map = errorContent.data();
+            for (int i = 0; i < size; ++i) {
+                const string key = config.unknowerrorkeys(i);
+                string value;
+                if (message.get(key, value)) {
+                    map[key] = value;
+                }
+            }
+            ClientContext context;
+            stub->UnknowError(&context, errorContent, nullptr);
+        }
     private:
         int m_port;
         std::shared_ptr<AudioStream::Stub> stub;
         Config config;
     };
 }
-void work(int port);
 
 int main(int argc, char* argv[]) {
     try {
@@ -145,23 +227,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     return 0;
-}
-
-void work(int port) {
-    std::shared_ptr<Channel> channel = grpc::CreateChannel("localhost:" + std::to_string(port), grpc::InsecureChannelCredentials());
-    std::shared_ptr<AudioStream::Stub> stub = AudioStream::NewStub(channel);
-    ClientContext context;
-
-    Status status = stub->GetConfig(&context, empty, &config);
-    if (!status.ok()) {
-        // TODO output or throw
-        return;
-    }
-    std::unique_ptr<ClientReader<Frame>> frameStream = stub->GetStream(&context, empty);
-    Frame frame;
-    while (frameStream->Read(&frame)) {
-        const char* c = frame.data().c_str();
-    }
 }
 
 void parseArguments(int argc, char* argv[]) {
