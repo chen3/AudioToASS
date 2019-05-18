@@ -8,6 +8,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include "SDKWrap/Sdk.h"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
@@ -15,31 +16,60 @@ using cn::mx404::audiotoass::Empty;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
 using cn::mx404::audiotoass::Config;
+using mx404::BDSpeedSDKWrapper::SDK;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
 using grpc::Status;
+using grpc::StatusCode;
 using std::cerr;
 using std::endl;
 using std::exception;
 using std::invalid_argument;
+using std::runtime_error;
 
 namespace {
 
-    class ArgumentException : public invalid_argument {
+    class GRpcStatusException final : public runtime_error {
     public:
-        explicit ArgumentException(const std::string& whatArg, int exitCode)
-            : invalid_argument(whatArg)
-            , exitCode(exitCode)
+        GRpcStatusException(const Status& status)
+            : runtime_error("GRpcStatusException, ErrorCode:" + std::to_string(static_cast<int>(status.error_code()))
+                            + ", ErrorMessage:" + status.error_message()
+                            + ", ErrorDetails:" + status.error_details())
+            , m_errorCode(status.error_code())
+            , m_errorMessage(status.error_message())
+            , m_errorDetails(status.error_details())
         {
         }
 
-        int getExitCode() const {
-            return exitCode;
+        inline StatusCode errorCode() const {
+            return m_errorCode;
+        }
+        inline std::string errorMessage() const  {
+            return m_errorMessage;
+        }
+        inline std::string errorDetails() const {
+            return m_errorDetails;
+        }
+    private:
+        StatusCode m_errorCode;
+        std::string m_errorMessage;
+        std::string m_errorDetails;
+    };
+
+    class ArgumentException final : public invalid_argument {
+    public:
+        explicit ArgumentException(const std::string& whatArg, int exitCode)
+            : invalid_argument(whatArg)
+            , m_exitCode(exitCode)
+        {
         }
 
+        inline int exitCode() const {
+            return m_exitCode;
+        }
     private:
-        int exitCode;
+        int m_exitCode;
     };
 
     int parseArguments(int argc, char* argv[]) {
@@ -88,7 +118,7 @@ namespace {
             if (status.ok()) {
                 return;
             }
-            // TODO throw exception
+            throw GRpcStatusException(status);
         }
         int getPort() const {
             return port;
@@ -109,7 +139,7 @@ int main(int argc, char* argv[]) {
 
     } catch (ArgumentException& ex) {
         cerr << ex.what() << endl;
-        return ex.getExitCode();
+        return ex.exitCode();
     } catch(exception& ex) {
         cerr << ex.what() << endl;
         return -1;
