@@ -149,35 +149,35 @@ namespace {
             throw GRpcStatusException(status);
         }
 
-        void sentRecognitionStartMessage() {
+        void sendRecognitionStartMessage() {
             ClientContext context;
             Status status = stub->RecognitionStart(&context, empty, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
         }
-        void sentRecognitionEndMessage() {
+        void sendRecognitionEndMessage() {
             ClientContext context;
             Status status = stub->RecognitionEnd(&context, empty, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
         }
-        void sentSentenceStartMessage() {
+        void sendSentenceStartMessage() {
             ClientContext context;
             Status status = stub->SentenceStart(&context, empty, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
         }
-        void sentSentenceEndMessage() {
+        void sendSentenceEndMessage() {
             ClientContext context;
             Status status = stub->SentenceEnd(&context, empty, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
         }
-        void sentSentenceFinishData(const std::string& jsonString) {
+        void sendSentenceFinishData(const std::string& jsonString) {
             ClientContext context;
             JsonString json;
             json.set_data(jsonString);
@@ -186,7 +186,7 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
-        void sentSentenceFlushData(const std::string& jsonString) {
+        void sendSentenceFlushData(const std::string& jsonString) {
             ClientContext context;
             JsonString json;
             json.set_data(jsonString);
@@ -195,7 +195,7 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
-        void sentUnknowError(Message& message) {
+        void sendUnknowError(Message& message) {
             int size = config.unknowerrorkeys_size();
             ErrorContent errorContent;
             ::google::protobuf::Map<string, string> map = errorContent.data();
@@ -212,7 +212,7 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
-        void sentBDSDKStartFail(const string& errorString) {
+        void sendBDSDKStartFail(const string& errorString) {
             int size = config.unknowerrorkeys_size();
             ClientContext context;
             ErrorString str;
