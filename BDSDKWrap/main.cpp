@@ -8,10 +8,10 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "SDKWrap/ProductId.h"
-#include "SDKWrap/Sdk.h"
-#include "SDKWrap/SdkConfig.h"
-#include "SDKWrap/Message/Message.h"
+#include "ProductId.h"
+#include "Sdk.h"
+#include "SdkConfig.h"
+#include "Message/Message.h"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;

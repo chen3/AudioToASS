@@ -26,9 +26,15 @@ set_target_properties(BDSpeedSDKWrap PROPERTIES
         CXX_VISIBILITY_PRESET hidden
         VISIBILITY_INLINES_HIDDEN true)
 target_include_directories(BDSpeedSDKWrap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/include)
-target_link_directories(BDSpeedSDKWrap PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/lib
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib)
-target_link_libraries(BDSpeedSDKWrap BDSpeechSDK curl ssl pthread dl crypto uuid z iconv)
+target_link_libraries(BDSpeedSDKWrap ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/lib/libBDSpeechSDK.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libcurl.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libssl.a
+        pthread
+        dl
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libcrypto.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libuuid.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libz.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/Library/BDSpeedSDK/extern/lib/libiconv.a)
 
 
 add_subdirectory(Library/gRPC ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
@@ -57,9 +63,9 @@ add_custom_command(
         "${ProjectProto}"
         DEPENDS "${ProjectProto}")
 
-# Include generated *.pb.h files
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-
 add_executable(gRPCClient main.cpp ${ProjectProtoSrcs} ${ProjectGrpcSrcs})
-target_link_libraries(gRPCClient ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
-add_dependencies(gRPCClient BDSpeedSDKWrap)
+
+# Include generated *.pb.h files
+target_include_directories(gRPCClient PRIVATE "${CMAKE_CURRENT_BINARY_DIR}"
+                                    PRIVATE SDKWrap)
+target_link_libraries(gRPCClient BDSpeedSDKWrap ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
