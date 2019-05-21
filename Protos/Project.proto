@@ -3,7 +3,7 @@ syntax = "proto3";
 package cn.mx404.audiotoass;
 
 service AudioStream {
-    rpc GetConfig(Empty) returns (Config) {}
+    rpc GetConfig(SDKVersion) returns (Config) {}
 
     rpc GetStream(Empty) returns (stream Frame) {}
 
@@ -20,6 +20,10 @@ service AudioStream {
 }
 
 message Empty {
+}
+
+message SDKVersion {
+    string version = 1;
 }
 
 message Frame {

@@ -15,12 +15,13 @@
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
+using cn::mx404::audiotoass::Config;
 using cn::mx404::audiotoass::Empty;
 using cn::mx404::audiotoass::ErrorContent;
 using cn::mx404::audiotoass::ErrorString;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
-using cn::mx404::audiotoass::Config;
+using cn::mx404::audiotoass::SDKVersion;
 using mx404::BDSpeedSDKWrapper::ProductID;
 using mx404::BDSpeedSDKWrapper::SDK;
 using mx404::BDSpeedSDKWrapper::SDKConfig;
@@ -125,7 +126,9 @@ namespace {
         }
         void initConfig() {
             ClientContext context;
-            Status status = stub->GetConfig(&context, empty, &config);
+            SDKVersion version;
+            version.set_version(SDK::getSDKVersion());
+            Status status = stub->GetConfig(&context, version, &config);
             if (status.ok()) {
                 return;
             }
@@ -239,6 +242,8 @@ int main(int argc, char* argv[]) {
                                         "jhRA15uv8Lvd4r9qbtmOODMv", make_shared<ProductID>(15362));
         string errorString;
         shared_ptr<SDK> sdk = SDK::getInstance(sdkConfig, errorString);
+
+
 
         local.receiveFrameLoop([](Frame frame) {
 
