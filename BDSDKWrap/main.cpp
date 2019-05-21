@@ -302,7 +302,3 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 }
-
-void parseArguments(int argc, char* argv[]) {
-
-}
