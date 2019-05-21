@@ -5,6 +5,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <grpcpp/grpcpp.h>
 
@@ -12,6 +13,7 @@
 #include "Sdk.h"
 #include "SdkConfig.h"
 #include "Message/Message.h"
+#include "Message/PushMessage.h"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
@@ -26,6 +28,7 @@ using mx404::BDSpeedSDKWrapper::ProductID;
 using mx404::BDSpeedSDKWrapper::SDK;
 using mx404::BDSpeedSDKWrapper::SDKConfig;
 using mx404::BDSpeedSDKWrapper::SDKMessage::Message;
+using mx404::BDSpeedSDKWrapper::SDKMessage::PushMessage;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
@@ -39,6 +42,7 @@ using std::make_shared;
 using std::runtime_error;
 using std::shared_ptr;
 using std::string;
+using std::vector;
 
 namespace {
 
@@ -128,7 +132,7 @@ namespace {
             ClientContext context;
             SDKVersion version;
             version.set_version(SDK::getSDKVersion());
-            Status status = stub->GetConfig(&context, version, &config);
+            Status status = stub->GetConfig(&context, version, &m_config);
             if (status.ok()) {
                 return;
             }
@@ -199,11 +203,12 @@ namespace {
             }
         }
         void sendUnknowError(Message& message) {
-            int size = config.unknowerrorkeys_size();
+            const Config c = config();
+            int size = c.unknowerrorkeys_size();
             ErrorContent errorContent;
             ::google::protobuf::Map<string, string> map = errorContent.data();
             for (int i = 0; i < size; ++i) {
-                const string key = config.unknowerrorkeys(i);
+                const string key = c.unknowerrorkeys(i);
                 string value;
                 if (message.get(key, value)) {
                     map[key] = value;
@@ -216,7 +221,6 @@ namespace {
             }
         }
         void sendBDSDKStartFail(const string& errorString) {
-            int size = config.unknowerrorkeys_size();
             ClientContext context;
             ErrorString str;
             str.set_errorstring(errorString);
@@ -225,10 +229,14 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
+
+        const Config& config() const {
+            return m_config;
+        }
     private:
         int m_port;
         std::shared_ptr<AudioStream::Stub> stub;
-        Config config;
+        Config m_config;
     };
 }
 
@@ -237,17 +245,43 @@ int main(int argc, char* argv[]) {
         LocalServer local(parseArguments(argc, argv));
         local.initConfig();
 
+        shared_ptr<SDKConfig> sdkConfig;
+#ifndef NDEBUG
         // test config
-        shared_ptr<SDKConfig> sdkConfig = make_shared<SDKConfig>("10555002", "YourOwnName",
-                                        "jhRA15uv8Lvd4r9qbtmOODMv", make_shared<ProductID>(15362));
+        sdkConfig = make_shared<SDKConfig>("10555002", "YourOwnName",
+                                           "jhRA15uv8Lvd4r9qbtmOODMv", make_shared<ProductID>(15362));
+        sdkConfig->setDNNDatFilePath("../Library/BDSpeedSDK/resources/asr_resource/bds_easr_mfe_dnn.dat");
+        sdkConfig->setCMVNDatFilePath("../Library/BDSpeedSDKresources/asr_resource/bds_easr_mfe_cmvn.dat");
+#else
+        const Config config = local.config();
+        sdkConfig = make_shared<SDKConfig>(config.appid(), config.appname(),
+                                           config.chunkkey(), make_shared<ProductID>(config.productid()));
+        sdkConfig->setDNNDatFilePath(config.dnndatfilepath());
+        sdkConfig->setCMVNDatFilePath(config.cmvndatfilepath());
+#endif
         string errorString;
         shared_ptr<SDK> sdk = SDK::getInstance(sdkConfig, errorString);
 
-
+        if (sdk == nullptr) {
+            std::cerr << errorString << std::endl;
+            local.sendBDSDKStartFail(errorString);
+            return -10;
+        }
+        if (!sdk->init(errorString)) {
+            std::cerr << errorString << std::endl;
+            local.sendBDSDKStartFail(errorString);
+            return -11;
+        }
+        if (!sdk->start(errorString)) {
+            std::cerr << errorString << std::endl;
+            local.sendBDSDKStartFail(errorString);
+            return -12;
+        }
 
         local.receiveFrameLoop([](Frame frame) {
-
         });
+        SDK::cleanUp();
+        return 0;
     } catch (ArgumentException& ex) {
         cerr << ex.what() << endl;
         return ex.exitCode();
@@ -255,7 +289,6 @@ int main(int argc, char* argv[]) {
         cerr << ex.what() << endl;
         return -1;
     }
-    return 0;
 }
 
 void parseArguments(int argc, char* argv[]) {

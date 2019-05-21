@@ -44,6 +44,12 @@ message JsonString {
 
 message Config {
     repeated string unknowErrorKeys = 1;
+    string appID = 2;
+    string appName = 3;
+    string chunkKey = 4;
+    int32 productID = 5;
+    string dnnDatFilePath = 6;
+    string cmvnDatFilePath = 7;
 }
 
 message ErrorContent {
