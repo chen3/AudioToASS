@@ -141,6 +141,9 @@ namespace {
         inline int port() const {
             return m_port;
         }
+        inline const Config& config() const {
+            return m_config;
+        }
 
         void receiveFrameLoop(std::function<void(const Frame&)> callback) {
             ClientContext context;
@@ -230,9 +233,6 @@ namespace {
             }
         }
 
-        const Config& config() const {
-            return m_config;
-        }
     private:
         int m_port;
         std::shared_ptr<AudioStream::Stub> stub;
@@ -278,7 +278,19 @@ int main(int argc, char* argv[]) {
             return -12;
         }
 
-        local.receiveFrameLoop([](Frame frame) {
+        shared_ptr<PushMessage> pushMessage = make_shared<PushMessage>();
+        vector<char> datas;
+        local.receiveFrameLoop([pushMessage, &datas, sdk, &local](Frame frame) {
+            datas.clear();
+            for (const char& c : frame.data()) {
+                datas.push_back(c);
+            }
+            pushMessage->setData(datas);
+            string errorString;
+            if (!sdk->post(pushMessage, errorString)) {
+                std::cerr << errorString << std::endl;
+                //TODO send error string to server
+            }
         });
         SDK::cleanUp();
         return 0;
