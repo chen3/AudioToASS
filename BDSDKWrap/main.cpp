@@ -1,6 +1,7 @@
 //
 // Created by mx404 on 5/6/19.
 //
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -9,11 +10,13 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include "Callback.hpp"
 #include "ProductId.h"
 #include "Sdk.h"
 #include "SdkConfig.h"
 #include "Message/Message.h"
 #include "Message/PushMessage.h"
+#include "Message/ReceiveMessage.hpp"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
@@ -24,11 +27,13 @@ using cn::mx404::audiotoass::ErrorString;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
 using cn::mx404::audiotoass::SDKVersion;
+using mx404::BDSpeedSDKWrapper::Callback;
 using mx404::BDSpeedSDKWrapper::ProductID;
 using mx404::BDSpeedSDKWrapper::SDK;
 using mx404::BDSpeedSDKWrapper::SDKConfig;
 using mx404::BDSpeedSDKWrapper::SDKMessage::Message;
 using mx404::BDSpeedSDKWrapper::SDKMessage::PushMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::ReceiveMessage;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
@@ -37,6 +42,7 @@ using grpc::StatusCode;
 using std::cerr;
 using std::endl;
 using std::exception;
+using std::function;
 using std::invalid_argument;
 using std::make_shared;
 using std::runtime_error;
@@ -238,6 +244,26 @@ namespace {
         std::shared_ptr<AudioStream::Stub> stub;
         Config m_config;
     };
+
+    class LambdaCallback : public Callback {
+    public:
+        LambdaCallback(function<void(shared_ptr<ReceiveMessage>)> callback,
+                       function<void(const string&)> errorCallback)
+            : m_callback(callback)
+            , errorCallback(errorCallback)
+        {
+        }
+        virtual ~LambdaCallback() override = default;
+        virtual void callback(shared_ptr<ReceiveMessage> message) override {
+            m_callback(message);
+        }
+        virtual void error(const string& errorDescription) override {
+            errorCallback(errorDescription);
+        }
+    private:
+        function<void(shared_ptr<ReceiveMessage>)> m_callback;
+        function<void(const string&)> errorCallback;
+    };
 }
 
 int main(int argc, char* argv[]) {
@@ -278,6 +304,12 @@ int main(int argc, char* argv[]) {
             return -12;
         }
 
+        sdk->setCallback(make_shared<LambdaCallback>([](shared_ptr<ReceiveMessage> message) {
+
+        }, [](const string& errorDescription) {
+
+        }));
+        
         shared_ptr<PushMessage> pushMessage = make_shared<PushMessage>();
         vector<char> datas;
         local.receiveFrameLoop([pushMessage, &datas, sdk, &local](Frame frame) {
