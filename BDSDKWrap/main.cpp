@@ -14,15 +14,25 @@
 #include "ProductId.h"
 #include "Sdk.h"
 #include "SdkConfig.h"
+#include "Message/CancelMessage.hpp"
+#include "Message/ErrorMessage.h"
 #include "Message/Message.h"
 #include "Message/PushMessage.h"
 #include "Message/ReceiveMessage.hpp"
+#include "Message/RecognitionEndMessage.hpp"
+#include "Message/RecognitionStartMessage.hpp"
+#include "Message/SentenceEndMessage.hpp"
+#include "Message/SentenceFinishData.h"
+#include "Message/SentenceFlushData.h"
+#include "Message/SentenceStartMessage.hpp"
+#include "Message/UnknowMessage.h"
 #include "Project.grpc.pb.h"
 
 using cn::mx404::audiotoass::AudioStream;
 using cn::mx404::audiotoass::Config;
 using cn::mx404::audiotoass::Empty;
 using cn::mx404::audiotoass::ErrorContent;
+using ProtobufErrorMessage = cn::mx404::audiotoass::ErrorMessage;
 using cn::mx404::audiotoass::ErrorString;
 using cn::mx404::audiotoass::Frame;
 using cn::mx404::audiotoass::JsonString;
@@ -31,15 +41,26 @@ using mx404::BDSpeedSDKWrapper::Callback;
 using mx404::BDSpeedSDKWrapper::ProductID;
 using mx404::BDSpeedSDKWrapper::SDK;
 using mx404::BDSpeedSDKWrapper::SDKConfig;
+using mx404::BDSpeedSDKWrapper::SDKMessage::CancelMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::ErrorMessage;
 using mx404::BDSpeedSDKWrapper::SDKMessage::Message;
 using mx404::BDSpeedSDKWrapper::SDKMessage::PushMessage;
 using mx404::BDSpeedSDKWrapper::SDKMessage::ReceiveMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::RecognitionEndMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::RecognitionStartMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::SentenceEndMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::SentenceFinishData;
+using mx404::BDSpeedSDKWrapper::SDKMessage::SentenceFlushData;
+using mx404::BDSpeedSDKWrapper::SDKMessage::SentenceStartMessage;
+using mx404::BDSpeedSDKWrapper::SDKMessage::UnknowMessage;
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientReader;
 using grpc::Status;
 using grpc::StatusCode;
 using std::cerr;
+using std::cout;
+using std::dynamic_pointer_cast;
 using std::endl;
 using std::exception;
 using std::function;
@@ -211,29 +232,54 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
-        void sendUnknowError(Message& message) {
+        void sendSDKUnknowError(shared_ptr<UnknowMessage> message) {
             const Config c = config();
+            shared_ptr<Message> originMessage = message->getMessage();
+
             int size = c.unknowerrorkeys_size();
             ErrorContent errorContent;
+            errorContent.set_statuscode(message->getStatusCode());
             ::google::protobuf::Map<string, string> map = errorContent.data();
+
             for (int i = 0; i < size; ++i) {
                 const string key = c.unknowerrorkeys(i);
                 string value;
-                if (message.get(key, value)) {
+                if (originMessage->get(key, value)) {
                     map[key] = value;
                 }
             }
             ClientContext context;
-            Status status = stub->UnknowError(&context, errorContent, nullptr);
+            Status status = stub->SDKUnknowError(&context, errorContent, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
         }
-        void sendBDSDKStartFail(const string& errorString) {
+        void sendSDKStartFail(const string& errorString) {
             ClientContext context;
             ErrorString str;
             str.set_errorstring(errorString);
-            Status status = stub->BDSDKStartFail(&context, str, nullptr);
+            Status status = stub->SDKStartFail(&context, str, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sendSDKError(const shared_ptr<ErrorMessage>& message) {
+            ClientContext context;
+            ProtobufErrorMessage errorMessage;
+            errorMessage.set_code(message->getErrorCode());
+            errorMessage.set_domain(message->getErrorDomain());
+            errorMessage.set_description(message->getErrorDescription());
+            errorMessage.set_serialnumber(message->getSerialNumber());
+            Status status = stub->SDKError(&context, errorMessage, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sendWrapMessageFail(const string& errorString) {
+            ClientContext context;
+            ErrorString str;
+            str.set_errorstring(errorString);
+            Status status = stub->WrapMessageFail(&context, str, nullptr);
             if (!status.ok()) {
                 throw GRpcStatusException(status);
             }
@@ -289,25 +335,86 @@ int main(int argc, char* argv[]) {
         shared_ptr<SDK> sdk = SDK::getInstance(sdkConfig, errorString);
 
         if (sdk == nullptr) {
-            std::cerr << errorString << std::endl;
-            local.sendBDSDKStartFail(errorString);
+            cerr << errorString << endl;
+            local.sendSDKStartFail(errorString);
             return -10;
         }
         if (!sdk->init(errorString)) {
-            std::cerr << errorString << std::endl;
-            local.sendBDSDKStartFail(errorString);
+            cerr << errorString << endl;
+            local.sendSDKStartFail(errorString);
             return -11;
         }
         if (!sdk->start(errorString)) {
-            std::cerr << errorString << std::endl;
-            local.sendBDSDKStartFail(errorString);
+            cerr << errorString << endl;
+            local.sendSDKStartFail(errorString);
             return -12;
         }
 
-        sdk->setCallback(make_shared<LambdaCallback>([](shared_ptr<ReceiveMessage> message) {
-
-        }, [](const string& errorDescription) {
-
+        sdk->setCallback(make_shared<LambdaCallback>([&local](shared_ptr<ReceiveMessage> message) {
+            try {
+                shared_ptr<ErrorMessage> msg1 = dynamic_pointer_cast<ErrorMessage>(message);
+                if (msg1 != nullptr) {
+                    cerr << "ErrorMessage, code:" << msg1->getErrorCode()
+                           << ", error domain:" << msg1->getErrorDomain()
+                           << ", error description:" << msg1->getErrorDescription()
+                           << ", serial number:" << msg1->getSerialNumber()
+                           << endl;
+                    local.sendSDKError(msg1);
+                    return;
+                }
+                shared_ptr<UnknowMessage> msg2 = dynamic_pointer_cast<UnknowMessage>(message);
+                if (msg2 != nullptr) {
+                    cerr << "UnknowMessage, status code:" << msg2->getStatusCode() << endl;
+                    local.sendSDKUnknowError(msg2);
+                    return;
+                }
+                if (dynamic_pointer_cast<CancelMessage>(message) != nullptr) {
+                    cout << "CancelMessage" << endl;
+                    return;
+                }
+                if (dynamic_pointer_cast<RecognitionEndMessage>(message) != nullptr) {
+                    cout << "RecognitionEndMessage" << endl;
+                    local.sendRecognitionEndMessage();
+                    return;
+                }
+                if (dynamic_pointer_cast<RecognitionStartMessage>(message) != nullptr) {
+                    cout << "RecognitionStartMessage" << endl;
+                    local.sendRecognitionStartMessage();
+                    return;
+                }
+                if (dynamic_pointer_cast<SentenceEndMessage>(message) != nullptr) {
+                    cout << "SentenceEndMessage" << endl;
+                    local.sendSentenceEndMessage();
+                    return;
+                }
+                shared_ptr<SentenceFinishData> msg3 = dynamic_pointer_cast<SentenceFinishData>(message);
+                if (msg3 != nullptr) {
+                    cout << "SentenceFinishData" << endl;
+                    local.sendSentenceFinishData(msg3->getJsonString());
+                    return;
+                }
+                shared_ptr<SentenceFlushData> msg4 = dynamic_pointer_cast<SentenceFlushData>(message);
+                if (msg3 != nullptr) {
+                    cout << "SentenceFlushData, json:" << endl;
+                    local.sendSentenceFlushData(msg4->getJsonString());
+                    return;
+                }
+                if (dynamic_pointer_cast<SentenceStartMessage>(message) != nullptr) {
+                    cout << "SentenceStartMessage" << endl;
+                    local.sendSentenceStartMessage();
+                }
+                cerr << "have message not handled." << message << endl;
+            } catch (exception& ex) {
+                cerr << "callback error." << ex.what() << endl;
+                std::exit(-6);
+            }
+        }, [&local](const string& errorDescription) {
+            try {
+                local.sendWrapMessageFail(errorDescription);
+            } catch (exception& ex) {
+                cerr << "callback onerror error." << ex.what() << endl;
+                std::exit(-7);
+            }
         }));
         
         shared_ptr<PushMessage> pushMessage = make_shared<PushMessage>();

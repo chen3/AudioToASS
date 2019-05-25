@@ -15,8 +15,11 @@ service AudioStream {
     rpc SentenceFinishData(JsonString) returns(Empty) {}
     rpc SentenceFlushData(JsonString) returns(Empty) {}
 
-    rpc UnknowError(ErrorContent) returns(Empty) {}
-    rpc BDSDKStartFail(ErrorString) returns(Empty) {}
+    rpc SDKError(ErrorMessage) returns(Empty) {}
+    rpc SDKUnknowError(ErrorContent) returns(Empty) {}
+
+    rpc SDKStartFail(ErrorString) returns(Empty) {}
+    rpc WrapMessageFail(ErrorString) returns(Empty) {}
 }
 
 message Empty {
@@ -53,7 +56,8 @@ message Config {
 }
 
 message ErrorContent {
-    map<string, string> data = 1;
+    int32 statusCode = 1;
+    map<string, string> data = 2;
 }
 
 message ErrorString {
