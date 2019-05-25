@@ -33,7 +33,6 @@ message SDKVersion {
 
 message Frame {
     bytes data = 1;
-    bool cancel = 2;
 }
 
 message ErrorMessage {
