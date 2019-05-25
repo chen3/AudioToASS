@@ -284,6 +284,24 @@ namespace {
                 throw GRpcStatusException(status);
             }
         }
+        void sendPostMessageFail(const string& errorString) {
+            ClientContext context;
+            ErrorString str;
+            str.set_errorstring(errorString);
+            Status status = stub->PostMessageToBaiDuServerFail(&context, str, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
+        void sendSDKStopFail(const string& errorString) {
+            ClientContext context;
+            ErrorString str;
+            str.set_errorstring(errorString);
+            Status status = stub->SDKStopFail(&context, str, nullptr);
+            if (!status.ok()) {
+                throw GRpcStatusException(status);
+            }
+        }
 
     private:
         int m_port;
@@ -416,7 +434,7 @@ int main(int argc, char* argv[]) {
                 std::exit(-7);
             }
         }));
-        
+
         shared_ptr<PushMessage> pushMessage = make_shared<PushMessage>();
         vector<char> datas;
         local.receiveFrameLoop([pushMessage, &datas, sdk, &local](Frame frame) {
@@ -427,10 +445,17 @@ int main(int argc, char* argv[]) {
             pushMessage->setData(datas);
             string errorString;
             if (!sdk->post(pushMessage, errorString)) {
-                std::cerr << errorString << std::endl;
-                //TODO send error string to server
+                cerr << "post error:" << errorString << endl;
+                local.sendPostMessageFail(errorString);
             }
         });
+
+        string errorString1;
+        if (!sdk->stop(errorString1)) {
+            cerr << "post error:" << errorString << endl;
+            local.sendSDKStopFail(errorString);
+        }
+        sdk.reset();
         SDK::cleanUp();
         return 0;
     } catch (ArgumentException& ex) {

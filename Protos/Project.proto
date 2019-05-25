@@ -19,7 +19,9 @@ service AudioStream {
     rpc SDKUnknowError(ErrorContent) returns(Empty) {}
 
     rpc SDKStartFail(ErrorString) returns(Empty) {}
+    rpc SDKStopFail(ErrorString) returns(Empty) {}
     rpc WrapMessageFail(ErrorString) returns(Empty) {}
+    rpc PostMessageToBaiDuServerFail(ErrorString) returns(Empty) {}
 }
 
 message Empty {
