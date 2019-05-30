@@ -1,0 +1,3 @@
+C:\Users\laoc1\source\repos\AudioToASS\DotNetServer\AudioToAssServer\AudioToAssServer\obj\Debug\netcoreapp2.2\AudioToAssServer.csproj.CoreCompileInputs.cache
+C:\Users\laoc1\source\repos\AudioToASS\DotNetServer\AudioToAssServer\AudioToAssServer\obj\Debug\netcoreapp2.2\AudioToAssServer.AssemblyInfoInputs.cache
+C:\Users\laoc1\source\repos\AudioToASS\DotNetServer\AudioToAssServer\AudioToAssServer\obj\Debug\netcoreapp2.2\AudioToAssServer.AssemblyInfo.cs
