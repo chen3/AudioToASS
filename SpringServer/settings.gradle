@@ -1,0 +1,4 @@
+rootProject.name = 'SpringServer'
+include 'Server'
+findProject(':Server')?.name = 'SpringServer'
+
