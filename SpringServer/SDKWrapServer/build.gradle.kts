@@ -1,8 +1,38 @@
+import com.google.protobuf.gradle.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(group = "com.google.protobuf", name = "protobuf-gradle-plugin", version = "0.8.8")
+    }
+}
 
 plugins {
     java
     kotlin("jvm") version "1.3.21"
+    id("com.google.protobuf").version("0.8.8")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.7.1"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.21.0"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                // Apply the "grpc" plugin whose spec is defined above, without options.
+                id("grpc")
+            }
+        }
+    }
 }
 
 group = "cn.mx404.audiotoass"
@@ -14,6 +44,15 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation(group = "io.grpc", name = "grpc-netty-shaded", version = "1.21.0")
+    implementation(group = "io.grpc", name = "grpc-protobuf", version = "1.21.0")
+    implementation(group = "io.grpc", name = "grpc-stub", version = "1.21.0")
+    protobuf(files(File(rootProject.rootDir.parent, "Protos/Project.proto").absolutePath))
+    if (JavaVersion.current().isJava9Compatible) {
+        // Workaround for @javax.annotation.Generated
+        // see: https://github.com/grpc/grpc-java/issues/3633
+        compile("javax.annotation:javax.annotation-api:1.3.1")
+    }
     testCompile("junit", "junit", "4.12")
 }
 
